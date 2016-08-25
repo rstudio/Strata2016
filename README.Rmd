@@ -27,18 +27,19 @@ Materials for Nathan and Garrett's tutorial R for Big Data
 
 1. R
     a.  R is both tools and a glue, and it is a very good glue.
-        i.  Preview of R's tools
         ii.  Role of R as an interface between languages
         iii.  Preview of the RStudio tool chain (_details in proportion to the lack of context here_)
 2. tidyverse
-    a.  Introduction to the R package system
     b.  Like many mature languages, R contains legacy tools that you should avoid. Some of these tools were not designed for big data. 
     c.  The tidyverse encapsulates the most modern tools that work best with big data. The tidyverse is R + organization + best practices.
         i.  The tidyverse is all open source and free
+3. R Markdown
+    a. R Markdown unifies your analysis into a single record
+    b. logisitics of using the R Markdown notebooks in class
+    c.  have students open an R Markdown document, demonstrate notebook interface and exporting results as nb.html.
 3. dplyr
     a.  dplyr an R package
     b. not only is dplyr the main tool in the tidyverse, dplyr is the glue between R and big data
-    c.  have students open an R Markdown document, demonstrate notebook interface and exporting results as nb.html. 
     d.  Teach 
         i.  `select()`
         ii.  `filter()`
@@ -50,7 +51,7 @@ Materials for Nathan and Garrett's tutorial R for Big Data
         viii.  `full_join()`
         ix.  `%>%`
     c.  Segue exercise to big data?
-    d.  Also dissect modeling code and ggplot code?
+    d.  Also dissect modeling code and ggplot code? No. Just have in the notebook.
 
 
 ## Big data (slides: Garrett)
@@ -69,7 +70,7 @@ Materials for Nathan and Garrett's tutorial R for Big Data
     ii. can be multinodal
     iii. Invented 50 years ago
 2. Introduce the flights data set 
-    i. The SQL exercise from 2015
+    i. Repeat the dplyr exercise from above on Boston instead of New York.
         
 ## Spark intro
 

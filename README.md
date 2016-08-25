@@ -30,21 +30,23 @@ Intro to R and dplyr (slides: Garrett)
 
 1.  R
     1.  R is both tools and a glue, and it is a very good glue.
-        1.  Preview of R's tools
-        2.  Role of R as an interface between languages
-        3.  Preview of the RStudio tool chain (*details in proportion to the lack of context here*)
+        1.  Role of R as an interface between languages
+        2.  Preview of the RStudio tool chain (*details in proportion to the lack of context here*)
 
 2.  tidyverse
-    1.  Introduction to the R package system
-    2.  Like many mature languages, R contains legacy tools that you should avoid. Some of these tools were not designed for big data.
-    3.  The tidyverse encapsulates the most modern tools that work best with big data. The tidyverse is R + organization + best practices.
+    1.  Like many mature languages, R contains legacy tools that you should avoid. Some of these tools were not designed for big data.
+    2.  The tidyverse encapsulates the most modern tools that work best with big data. The tidyverse is R + organization + best practices.
         1.  The tidyverse is all open source and free
 
-3.  dplyr
+3.  R Markdown
+    1.  R Markdown unifies your analysis into a single record
+    2.  logisitics of using the R Markdown notebooks in class
+    3.  have students open an R Markdown document, demonstrate notebook interface and exporting results as nb.html.
+
+4.  dplyr
     1.  dplyr an R package
     2.  not only is dplyr the main tool in the tidyverse, dplyr is the glue between R and big data
-    3.  have students open an R Markdown document, demonstrate notebook interface and exporting results as nb.html.
-    4.  Teach
+    3.  Teach
         1.  `select()`
         2.  `filter()`
         3.  `mutate()`
@@ -55,8 +57,8 @@ Intro to R and dplyr (slides: Garrett)
         8.  `full_join()`
         9.  `%>%`
 
-    5.  Segue exercise to big data?
-    6.  Also dissect modeling code and ggplot code?
+    4.  Segue exercise to big data?
+    5.  Also dissect modeling code and ggplot code? No. Just have in the notebook.
 
 Big data (slides: Garrett)
 --------------------------
@@ -78,7 +80,7 @@ SQLite exercise (nycflights13) (slides: Nathan?)
     3.  Invented 50 years ago
 
 2.  Introduce the flights data set
-    1.  The SQL exercise from 2015
+    1.  Repeat the dplyr exercise from above on Boston instead of New York.
 
 Spark intro
 -----------
