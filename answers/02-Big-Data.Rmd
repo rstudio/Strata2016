@@ -1,0 +1,149 @@
+---
+title: "R with Big Data 2: Big Data and Databases"
+author: "Garrett Grolemund and Nathan Stephens"
+date: "September 27, 2016"
+output: html_notebook
+---
+
+```{r setup, include = FALSE}
+library(dplyr)
+```
+
+These are the class notes (Part 2 of 3) for *R for Big Data*, a workshop taught at *Strata + Hadoop World 2016 NYC*. The notes are saved as an R Markdown Notebook. See Part 1, *Universal Tools* to learn more about how to use R Markdown Notebooks.
+
+# Big Data with R
+
+The Challenge
+
+: R imports data into your RAM to allow fast, interactive manipulations. As a result, any data that is too big to work with easily in RAM is "Big Data", i.e.
+
+$$\text{Big Data}\gtrapprox 1/3 \cdot \text{RAM}$$
+
+The Solution
+
+: To use Big Data with R, store the data outside of RAM and then use an R package built for big data to connect to it. 
+
+Packages that work with big data stores include:
+
+* DBI
+* dplyr
+* sparklyr
+
+# dplyr for databases
+
+dplyr provides a collection of R functions for working with data (see Part 1) as well as extensible "backends" that can:
+
+1. connect to database management systems (DBMS)
+2. translate R code to SQL to run in the DBMS
+3. import the results into R
+
+As a result you can orchestrate analyses in R with dplyr and apply them to big data stored outside of RAM.
+
+## dplyr database workflow
+
+Use a three step workflow to manipulate data stored in a database with dplyr:
+
+1. Create a connection to a database with a dplyr driver function.     Available drivers include:
+
+      *  `src_mysql()`
+      *  `src_postgres()`
+      *  `src_sqlite()`
+      *  `bigquery::src_bigquery()`
+
+    ````r
+    db <- src_mysql(dbname, host, port, user, pass,...)
+    ````
+
+2. Create a reference to a table in the database with `tbl()`
+
+    ````r
+    tab <- tbl(db, "tablename")
+    ````
+
+3. Manipulate the table reference with common dplyr functions, and basic R operations.
+
+    ````r
+    tab %>% 
+      filter(x > 1) %>% 
+      select(x, y, z)
+    ````
+
+4. Close the connection by removing the connection object and running the garbage collector with `gc()`
+
+    ````r
+    rm(db)
+    gc()
+    ````
+    
+dplyr will automatically translate your R code to SQL to execute on the database using the specified driver. dplyr implements several features to ensure a fast experience. dplyr:
+
+1. relies on lazy evaluation, evaluating the SQL query only when necessary
+2. optimizes the entire SQL query before running it against the database
+3. Only retrieves the first ten rows of results to display in R. Use `collect()` to import the entire set of results into R for saving as an R object.
+
+# Airlines database
+
+The airlines database contains arrival and departure details for all commercial flights in US between October 1987 and April 2008, which is 120,000,000 records (collected from http://stat-computing.org/dataexpo/2009/). The database consumes about 12 GB and exists on a temporary Amazon Redshift PostgreSQL database with the following details:
+
+* database name: `airontime` 
+* host: `strata1.cjku7otn8uia.us-west-2.redshift.amazonaws.com`
+* port: `5439`
+* user: `redshift_user`
+* password: `ABCd4321`
+
+***
+
+**Exercise 1**: *In the code chunk below, use a dplyr driver function to open a connection to the Airlines database. Note this chunk will not run until you remove the chunk option `eval = FALSE`*.
+
+```{r eval = FALSE}
+if (!exist(air)) {
+  air <- src_postgres(
+    dbname = 'airontime', 
+    host = 'sol-eng.cjku7otn8uia.us-west-2.redshift.amazonaws.com', 
+    port = '5439', 
+    user = 'redshift_user', 
+    password = 'ABCd4321')
+}
+```
+
+***
+
+**Exercise 2**: *Modify the code chunk below to re-run our analysis from Part 1 on the entire airlines data set. You will need to:*
+
+1. *create a table reference for the flights data set*
+2. *create a table reference for the planes data set*
+3. *create a table reference for the airlines data set*
+4. *collect the entire data set when you are finished*
+
+*We've already updated the variable names to match the column names in the new data sets. Note this chunk will not run until you remove the chunk option `eval = FALSE`*
+
+```{r eval = FALSE}
+flights <- tbl(air, "flights")
+airlines <- tbl(air, "carriers")
+planes <- tbl(air, "planes")
+
+flights %>%
+  distinct(uniquecarrier, tailnum) %>%
+  left_join(planes, by = "tailnum") %>%
+  group_by(uniquecarrier) %>%
+  summarise(avg = mean(year, na.rm = TRUE), 
+            n = n(), nas = sum(is.na(year))) %>%
+  left_join(airlines, by = "uniquecarrier") %>%
+  select(name, avg, n, nas) %>%
+  arrange(desc(avg))
+```
+
+***
+
+```{r}
+# closes connection
+if (exists(air)) { 
+  rm(air)
+  gc()
+}
+```
+
+
+# Further Learning
+
+For a more extensive example that includes fitting a model and using the model to score data within the database, read [Analysis of Air On Time Data](http://www.rpubs.com/nwstephens/airontime) by Nathan Stephens.
