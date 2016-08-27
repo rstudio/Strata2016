@@ -54,17 +54,17 @@ Dplyr contains ~18 functions that together form a complete grammar of data manip
 
 Single table verbs take a single data frame, reference, or tibble and return a single data frame, reference, or tibble. 
 
-* `arrange` - 
+* `arrange` - returns the data with the rows reordered by increasing (or descending with `desc()`) values of one or more variables.
 
-* `filter` - 
+* `filter` - return only the rows of the data that meet one or more logical conditions.
 
-* `select` - 
+* `select` - returns a subset of columns from the data.
 
-* `mutate` - 
+* `mutate` - returns the data with one or more new columns computed from the data.
 
-* `summarise` - 
+* `summarise` - returns a new data set that summarises the information in the original data set.
 
-* `group_by` - 
+* `group_by` - "splits" the data into sub-groups based on common values of a variable (or common combinations of the values of two or more variables). dplyr functions will treat each group within a grouped data set separately, which is very useful with `summarise`.
 
 ***
 
@@ -74,6 +74,12 @@ Single table verbs take a single data frame, reference, or tibble and return a s
 # To inspect the raw data before you begin,
 # remove the hash tag below and run the chunk
 # View(iris)
+
+iris1 <- group_by(iris, Species)
+iris2 <- summarise(iris1, avg_width = mean(Petal.Width), avg_length = mean(Petal.Length))
+iris3 <- mutate(iris2, diff = avg_length - avg_width)
+iris4 <- filter(iris3, diff == max(diff))
+select(iris4, -diff)
 ```
 
 
@@ -100,11 +106,12 @@ Type ` %>% ` with the keyboard shortcut *Cmd+Shift+M*.
 **Exercise 4**: *You can use ` %>% ` to string many functions together into a long pipe. Use ` %>% ` to turn the code below (from Exercise 3) into a single long pipe.
 
 ```{r}
-iris1 <- group_by(iris, Species)
-iris2 <- summarise(iris1, avg_width = mean(Petal.Width), avg_length = mean(Petal.Length))
-iris3 <- mutate(iris2, diff = avg_length - avg_width)
-iris4 <- filter(iris3, diff == max(diff))
-select(iris4, -diff)
+iris %>%  
+  group_by(Species) %>% 
+  summarise(avg_width = mean(Petal.Width), avg_length = mean(Petal.Length)) %>% 
+  mutate(diff = avg_length - avg_width) %>% 
+  filter(diff == max(diff)) %>% 
+  select(-diff)
 ```
 
 ***
@@ -125,19 +132,19 @@ Two table verbs take two data frames, references, or tibbles and return a single
 
 **Mutating joins** add new variables to one data set from matching rows in a second data set. dplyr has 4 mutating joins. The joins differ in the information they do not return.
 
-* `left_join` - Drops rows from the *______* data set that do not match rows in the first.
+* `left_join` - Drops rows from the *second* data set that do not match rows in the first.
 
-* `right_join` - Drops rows from the *______* data set that do not match rows in the second.
+* `right_join` - Drops rows from the *first* data set that do not match rows in the second.
 
-* `inner_join` - Drops rows from *______* data sets that do not match rows in the other data set.
+* `inner_join` - Drops rows from *both* data sets that do not match rows in the other data set.
 
-* `full_join` - Drops rows from *______* data set.
+* `full_join` - Drops rows from *neither* data set (retains all values).
 
 **Filtering joins** return rows from the first data set based on whether or not they match rows in the second data set.
 
-* `semi_join` - Returns rows from first data set that *______* rows in the second data set.
+* `semi_join` - Returns rows from first data set that *match* rows in the second data set.
 
-* `anti_join` - Returns rows from first data set that *______* rows in the second data set.
+* `anti_join` - Returns rows from first data set that *do not match* rows in the second data set.
 
 
 ***
@@ -182,23 +189,24 @@ The data is split into five related data sets:
 ```{r}
 flights %>%
   # selects distinct combinations of carrier and tailnum
-  distinct(carrier, tailnum) # %>%
-  # join to planes to get the year manufactured variable
+  distinct(carrier, tailnum) %>%
+  # join to planes to get year manufactured
   # (which column should you join on?)
-  # __________________________ %>%
+  left_join(planes, by = "tailnum") %>%
   # group by carrier (e.g. the airline)
-  # __________________________ %>%
+  group_by(carrier) %>%
   # calculate by carrier:
   #   1. avg - the mean year (with na.rm = TRUE) 
   #   2. n - the total number of planes
   #   3. nas - the number of planes with unknown year (year == NA)
-  # __________________________, n = n(), nas = sum(is.na(year))) %>%
-  # join to airlines to get the full airline name 
+  summarise(avg = mean(year, na.rm = TRUE), 
+            n = n(), nas = sum(is.na(year))) %>%
+  # join to airlines to get full airline name 
   # (which column should you join on?)
-  # __________________________ %>%
+  left_join(airlines, by = "carrier") %>%
   # select just the name, avg, n, and nas variables in that order
-  # __________________________ %>%
+  select(name, avg, n, nas) %>%
   # order the results by avg with the newest planes at the top
-  # __________________________ %>%
+  arrange(desc(avg))
 ```
 
