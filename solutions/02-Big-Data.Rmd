@@ -41,7 +41,7 @@ As a result you can orchestrate analyses in R with dplyr and apply them to big d
 
 ## dplyr database workflow
 
-Use a four step workflow to manipulate data stored in a database with dplyr:
+Use a five step workflow to manipulate data stored in a database with dplyr:
 
 1. Create a connection to a database with a dplyr driver function.     Available drivers include:
 
@@ -51,13 +51,14 @@ Use a four step workflow to manipulate data stored in a database with dplyr:
       *  `bigquery::src_bigquery()`
 
     ````r
-    db <- src_mysql(dbname, host, port, user, pass,...)
+    con <- src_mysql(dbname, host, port, user, pass,...)
+    src_tbls(con) # lists tables in the database
     ````
 
 2. Create a reference to a table in the database with `tbl()`
 
     ````r
-    tab <- tbl(db, "tablename")
+    tab <- tbl(con, "tablename")
     ````
 
 3. Manipulate the table reference with common dplyr functions, and basic R operations.
@@ -68,7 +69,16 @@ Use a four step workflow to manipulate data stored in a database with dplyr:
       select(x, y, z)
     ````
 
-4. Close the connection by removing the connection object and running the garbage collector with `gc()`
+4. Collect the full results to R. By default, dplyr will only collect and display the first 10 results to facilitate iteration.
+
+    ````r
+    tab %>% 
+      filter(x > 1) %>% 
+      select(x, y, z) %>% 
+      collect()
+    ````
+
+5. Close the connection by removing the connection object and running the garbage collector with `gc()`
 
     ````r
     rm(db)
@@ -96,8 +106,8 @@ The airlines database contains arrival and departure details for all commercial 
 
 **Exercise 1**: *In the code chunk below, use a dplyr driver function to open a connection to the Airlines database. Note this chunk will not run until you remove the chunk option `eval = FALSE`*.
 
-```{r eval = FALSE}
-if (!exist("air")) {
+```{r}
+if (!exists("air")) {
   air <- src_postgres(
     dbname = 'airontime', 
     host = 'sol-eng.cjku7otn8uia.us-west-2.redshift.amazonaws.com', 
@@ -114,7 +124,6 @@ if (!exist("air")) {
 1. *create a table reference for the flights data set*
 2. *create a table reference for the planes data set*
 3. *create a table reference for the airlines data set*
-4. *collect the entire data set when you are finished*
 
 *We've already updated the variable names to match the column names in the new data sets. Note this chunk will not run until you remove the chunk option `eval = FALSE`*
 
@@ -125,6 +134,7 @@ planes <- tbl(air, "planes")
 
 flights %>%
   distinct(uniquecarrier, tailnum) %>%
+  mutate(tailnum = substring(tailnum, 1L, 5L)) %>%
   left_join(planes, by = "tailnum") %>%
   group_by(uniquecarrier) %>%
   summarise(avg = mean(year, na.rm = TRUE), 
