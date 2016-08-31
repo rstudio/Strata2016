@@ -8,6 +8,7 @@ output: html_notebook
 ```{r setup, include = FALSE}
 library(dplyr)
 library(nycflights13)
+library(EDAWR)
 ```
 
 These are the class notes (Part 1 of 3) for *R for Big Data*, a workshop taught at *Strata + Hadoop World 2016 NYC*.
@@ -54,13 +55,13 @@ Dplyr contains ~18 functions that together form a complete grammar of data manip
 
 Single table verbs take a single data frame, reference, or tibble and return a single data frame, reference, or tibble. 
 
-* `arrange` - returns the data with the rows reordered by increasing (or descending with `desc()`) values of one or more variables.
-
-* `filter` - return only the rows of the data that meet one or more logical conditions.
-
 * `select` - returns a subset of columns from the data.
 
 * `mutate` - returns the data with one or more new columns computed from the data.
+
+* `filter` - return only the rows of the data that meet one or more logical conditions.
+
+* `arrange` - returns the data with the rows reordered by increasing (or descending with `desc()`) values of one or more variables.
 
 * `summarise` - returns a new data set that summarises the information in the original data set.
 
@@ -79,7 +80,7 @@ iris1 <- group_by(iris, Species)
 iris2 <- summarise(iris1, avg_width = mean(Petal.Width), avg_length = mean(Petal.Length))
 iris3 <- mutate(iris2, diff = avg_length - avg_width)
 iris4 <- filter(iris3, diff == max(diff))
-select(iris4, -diff)
+select(iris4, Species, avg_width, avg_length)
 ```
 
 
@@ -165,7 +166,7 @@ Two table verbs take two data frames, references, or tibbles and return a single
 
 ```{r}
 # join
-band %>% left_join(instrument, by = "name")
+band %>% inner_join(instrument, by = "name")
 ```
 
 ***

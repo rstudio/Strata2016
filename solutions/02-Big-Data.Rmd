@@ -41,7 +41,7 @@ As a result you can orchestrate analyses in R with dplyr and apply them to big d
 
 ## dplyr database workflow
 
-Use a three step workflow to manipulate data stored in a database with dplyr:
+Use a four step workflow to manipulate data stored in a database with dplyr:
 
 1. Create a connection to a database with a dplyr driver function.     Available drivers include:
 
@@ -85,8 +85,9 @@ dplyr will automatically translate your R code to SQL to execute on the database
 
 The airlines database contains arrival and departure details for all commercial flights in US between October 1987 and April 2008, which is 120,000,000 records (collected from http://stat-computing.org/dataexpo/2009/). The database consumes about 12 GB and exists on a temporary Amazon Redshift PostgreSQL database with the following details:
 
+* database type: `PostgreSQL` 
 * database name: `airontime` 
-* host: `strata1.cjku7otn8uia.us-west-2.redshift.amazonaws.com`
+* host: `sol-eng.cjku7otn8uia.us-west-2.redshift.amazonaws.com`
 * port: `5439`
 * user: `redshift_user`
 * password: `ABCd4321`
@@ -96,7 +97,7 @@ The airlines database contains arrival and departure details for all commercial 
 **Exercise 1**: *In the code chunk below, use a dplyr driver function to open a connection to the Airlines database. Note this chunk will not run until you remove the chunk option `eval = FALSE`*.
 
 ```{r eval = FALSE}
-if (!exist(air)) {
+if (!exist("air")) {
   air <- src_postgres(
     dbname = 'airontime', 
     host = 'sol-eng.cjku7otn8uia.us-west-2.redshift.amazonaws.com', 
@@ -137,7 +138,7 @@ flights %>%
 
 ```{r}
 # closes connection
-if (exists(air)) { 
+if (exists("air")) { 
   rm(air)
   gc()
 }

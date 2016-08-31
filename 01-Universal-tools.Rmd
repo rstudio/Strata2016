@@ -8,6 +8,7 @@ output: html_notebook
 ```{r setup, include = FALSE}
 library(dplyr)
 library(nycflights13)
+library(EDAWR)
 ```
 
 These are the class notes (Part 1 of 3) for *R for Big Data*, a workshop taught at *Strata + Hadoop World 2016 NYC*.
@@ -54,13 +55,13 @@ Dplyr contains ~18 functions that together form a complete grammar of data manip
 
 Single table verbs take a single data frame, reference, or tibble and return a single data frame, reference, or tibble. 
 
-* `arrange` - 
-
-* `filter` - 
-
 * `select` - 
 
 * `mutate` - 
+
+* `filter` - 
+
+* `arrange` - 
 
 * `summarise` - 
 
