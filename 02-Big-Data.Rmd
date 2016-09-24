@@ -118,7 +118,7 @@ The airlines database contains arrival and departure details for all commercial 
 if (!exists("air")) {
   air <- src_postgres(
     dbname = 'airontime', 
-    host = 'sol-eng.cjku7otn8uia.us-west-2.redshift.amazonaws.com', 
+    host = 'sol-eng-sparklyr.cyii7eabibhu.us-east-1.redshift.amazonaws.com', 
     port = '5439', 
     user = 'redshift_user', 
     password = 'ABCd4321')
