@@ -11,7 +11,7 @@ library(nycflights13)
 library(EDAWR)
 ```
 
-These are the class notes (Part 1 of 3) for *R for Big Data*, a workshop taught at *Strata + Hadoop World 2016 NYC*.
+These are the class notes (Part 1 of 4) for *R for Big Data*, a workshop taught at *Strata + Hadoop World 2016 NYC*.
 
 # Notebook logistics
 
@@ -49,27 +49,32 @@ Dplyr contains ~18 functions that together form a complete grammar of data manip
 
 ## Single table verbs
 
-***
-
-**Exercise 2**: *Write a definition in your own words for each of the dplyr functions below. Stop when you get to Exercise 3*.
-
 Single table verbs take a single data frame, reference, or tibble and return a single data frame, reference, or tibble. 
 
-* `select` - 
+* `select` - returns a subset of columns from the data.
 
-* `mutate` - 
+* `mutate` - returns the data with one or more new columns computed from the data.
 
-* `filter` - 
+* `filter` - return only the rows of the data that meet one or more logical conditions.
 
-* `arrange` - 
+* `arrange` - returns the data with the rows reordered by increasing (or descending with `desc()`) values of one or more variables.
 
-* `summarise` - 
+* `summarise` - returns a new data set that summarises the information in the original data set.
 
-* `group_by` - 
+* `group_by` - "splits" the data into sub-groups based on common values of a variable (or common combinations of the values of two or more variables). dplyr functions will treat each group within a grouped data set separately, which is very useful with `summarise`.
+
 
 ***
 
-**Exercise 3**: *The `iris` data set contains biometric measurements of three species of flower. In the code chunk below, use dplyr functions to return just the Species name, mean Petal.Width and mean Petal.Length of the Species with the largest difference between mean Petal.Width and mean Petal.Length.*
+**Exercise 2**: *The `iris` data set contains biometric measurements of three species of flower. In the code chunk below,* 
+
+1. *Group iris by Species*
+2. *For each group, return:*
+    + *`avg_width` = mean Petal.Width* 
+    + *`avg_length` = mean Petal.Length*
+3. *For each row, calculate `diff = avg_length - avg_width`* 
+4. *Return the row whose diff == the max diff*
+5. *Return the columns above*
 
 ```{r}
 # To inspect the raw data before you begin,
@@ -98,7 +103,7 @@ Type ` %>% ` with the keyboard shortcut *Cmd+Shift+M*.
 
 ***
 
-**Exercise 4**: *You can use ` %>% ` to string many functions together into a long pipe. Use ` %>% ` to turn the code below (from Exercise 3) into a single long pipe.
+**Exercise 3**: *You can use ` %>% ` to string many functions together into a long pipe. Use ` %>% ` to turn the code below (from Exercise 3) into a single long pipe.
 
 ```{r}
 iris1 <- group_by(iris, Species)
@@ -143,7 +148,7 @@ Two table verbs take two data frames, references, or tibbles and return a single
 
 ***
 
-**Exercise 5**: *The code below creates two simple data sets that can be joined together. Run the chunks and examine the data sets. Then use the following chunk to test out different types of joins with the data sets and to compare their results. Use what you discover to finish the definition of each join above in your own words.*
+**Exercise 4**: *The code below creates two simple data sets that can be joined together. Run the chunks and examine the data sets. Then use the following chunk to test out different types of joins with the data sets and to compare their results. Use what you discover to finish the definition of each join above in your own words.*
 
 ```{r}
 (band <- 
@@ -159,12 +164,12 @@ Two table verbs take two data frames, references, or tibbles and return a single
 
 ```{r}
 # join
-band %>% left_join(instrument, by = "name")
+band %>% right_join(instrument, by = "name")
 ```
 
 ***
 
-# Final Project
+# Airlines Project
 
 The nycflights13 package contains records of every flight that departed from La Guardia (`LGA`), JFK (`JFK`) and Newark (`EWR`) airports in 2013.
 
@@ -178,7 +183,7 @@ The data is split into five related data sets:
 
 ![](nycflights.png)
 
-**Exercise 6**: *Use the chunk below to determine which airline has the newest planes (assigned to the NYC area).*
+**Exercise 5**: *Use the chunk below to determine which airline has the newest planes (assigned to the NYC area).*
 
 ```{r}
 flights %>%

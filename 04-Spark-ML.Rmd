@@ -14,7 +14,7 @@ library(titanic)
 #library(purrr)
 ```
 
-These are the class notes (Part 4 of 3) for *R for Big Data*, a workshop taught at *Strata + Hadoop World 2016 NYC*. The notes are saved as an R Markdown Notebook. See Part 1, *Universal Tools* to learn more about how to use R Markdown Notebooks.
+These are the class notes (Part 4 of 4) for *R for Big Data*, a workshop taught at *Strata + Hadoop World 2016 NYC*. The notes are saved as an R Markdown Notebook. See Part 1, *Universal Tools* to learn more about how to use R Markdown Notebooks.
 
 # Overview
 

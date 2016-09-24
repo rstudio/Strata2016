@@ -28,13 +28,14 @@ Packages that work with big data stores include:
 * DBI
 * dplyr
 * sparklyr
+* many others
 
 # dplyr for databases
 
 dplyr provides a collection of R functions for working with data (see Part 1) as well as extensible "backends" that can:
 
 1. connect to database management systems (DBMS)
-2. translate R code to SQL to run in the DBMS
+2. translate R code to SQL `SELECT` statements to run in the DBMS
 3. import the results into R
 
 As a result you can orchestrate analyses in R with dplyr and apply them to big data stored outside of RAM.
@@ -104,7 +105,15 @@ The airlines database contains arrival and departure details for all commercial 
 
 ***
 
-**Exercise 1**: *In the code chunk below, use a dplyr driver function to open a connection to the Airlines database. Note this chunk will not run until you remove the chunk option `eval = FALSE`*.
+**Exercise 1**: *The first code chunk below uses a dplyr driver function to open a connection to the Airlines database. Run the chunk.*
+
+*The second code chunk runs your analysis from Part 1 on the full airlines data set (variable and table names have been altered to correspond with the new data set). Create table references for:*
+
+1. *flights*
+2. *planes*
+3. *airlines*
+
+*Then run the chunk to see which airline used the newest planes.*
 
 ```{r}
 if (!exists("air")) {
@@ -117,17 +126,8 @@ if (!exists("air")) {
 }
 ```
 
-***
 
-**Exercise 2**: *Modify the code chunk below to re-run our analysis from Part 1 on the entire airlines data set. You will need to:*
-
-1. *create a table reference for the flights data set*
-2. *create a table reference for the planes data set*
-3. *create a table reference for the airlines data set*
-
-*We've already updated the variable names to match the column names in the new data sets. Note this chunk will not run until you remove the chunk option `eval = FALSE`*
-
-```{r eval = FALSE}
+```{r}
 flights <- tbl(air, "flights")
 airlines <- tbl(air, "carriers")
 planes <- tbl(air, "planes")
@@ -142,11 +142,7 @@ flights %>%
   left_join(airlines, by = "uniquecarrier") %>%
   select(name, avg, n, nas) %>%
   arrange(desc(avg))
-```
 
-***
-
-```{r}
 # closes connection
 if (exists("air")) { 
   rm(air)

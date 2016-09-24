@@ -9,7 +9,7 @@ output: html_notebook
 library(dplyr)
 ```
 
-These are the class notes (Part 2 of 3) for *R for Big Data*, a workshop taught at *Strata + Hadoop World 2016 NYC*. The notes are saved as an R Markdown Notebook. See Part 1, *Universal Tools* to learn more about how to use R Markdown Notebooks.
+These are the class notes (Part 2 of 4) for *R for Big Data*, a workshop taught at *Strata + Hadoop World 2016 NYC*. The notes are saved as an R Markdown Notebook. See Part 1, *Universal Tools* to learn more about how to use R Markdown Notebooks.
 
 # Big Data with R
 
@@ -104,25 +104,33 @@ The airlines database contains arrival and departure details for all commercial 
 
 ***
 
-**Exercise 1**: *In the code chunk below, use a dplyr driver function to open a connection named air to the Airlines database.*.
+**Exercise 1**: *The first code chunk below uses a dplyr driver function to open a connection to the Airlines database. Run the chunk.*
+
+*The second code chunk runs your analysis from Part 1 on the full airlines data set (variable and table names have been altered to correspond with the new data set). Create table references for:*
+
+1. *flights*
+2. *planes*
+3. *airlines*
+
+*Then run the chunk to see which airline used the newest planes.*
 
 ```{r}
 if (!exists("air")) {
-  # define air here
+  air <- src_postgres(
+    dbname = 'airontime', 
+    host = 'sol-eng.cjku7otn8uia.us-west-2.redshift.amazonaws.com', 
+    port = '5439', 
+    user = 'redshift_user', 
+    password = 'ABCd4321')
 }
 ```
 
-***
-
-**Exercise 2**: *Modify the code chunk below to re-run our analysis from Part 1 on the entire airlines data set. You will need to:*
-
-1. *create a table reference for the flights data set*
-2. *create a table reference for the planes data set*
-3. *create a table reference for the airlines data set*
-
-*We've already updated the variable names to match the column names in the new data sets. Note this chunk will not run until you remove the chunk option `eval = FALSE`*
-
 ```{r eval = FALSE}
+
+# create flights reference
+# create planes reference
+# create airlines reference
+
 flights %>%
   distinct(uniquecarrier, tailnum) %>%
   mutate(tailnum = substring(tailnum, 1L, 5L)) %>%
@@ -133,11 +141,7 @@ flights %>%
   left_join(airlines, by = "uniquecarrier") %>%
   select(name, avg, n, nas) %>%
   arrange(desc(avg))
-```
 
-***
-
-```{r}
 # closes connection
 if (exists("air")) { 
   rm(air)
