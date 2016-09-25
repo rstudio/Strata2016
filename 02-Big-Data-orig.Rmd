@@ -7,10 +7,9 @@ output: html_notebook
 
 ```{r setup, include = FALSE}
 library(dplyr)
-library(rbokeh)
 ```
 
-These are the class notes (Part 2 of 3) for *R for Big Data*, a workshop taught at *Strata + Hadoop World 2016 NYC*. The notes are saved as an R Markdown Notebook. See Part 1, *Universal Tools* to learn more about how to use R Markdown Notebooks.
+These are the class notes (Part 2 of 4) for *R for Big Data*, a workshop taught at *Strata + Hadoop World 2016 NYC*. The notes are saved as an R Markdown Notebook. See Part 1, *Universal Tools* to learn more about how to use R Markdown Notebooks.
 
 # Big Data with R
 
@@ -29,14 +28,13 @@ Packages that work with big data stores include:
 * DBI
 * dplyr
 * sparklyr
-* many others
 
 # dplyr for databases
 
 dplyr provides a collection of R functions for working with data (see Part 1) as well as extensible "backends" that can:
 
 1. connect to database management systems (DBMS)
-2. translate R code to SQL `SELECT` statements to run in the DBMS
+2. translate R code to SQL to run in the DBMS
 3. import the results into R
 
 As a result you can orchestrate analyses in R with dplyr and apply them to big data stored outside of RAM.
@@ -99,7 +97,7 @@ The airlines database contains arrival and departure details for all commercial 
 
 * database type: `PostgreSQL` 
 * database name: `airontime` 
-* host: `sol-eng.cjku7otn8uia.us-west-2.redshift.amazonaws.com`
+* host: `sol-eng-sparklyr.cyii7eabibhu.us-east-1.redshift.amazonaws.com`
 * port: `5439`
 * user: `redshift_user`
 * password: `ABCd4321`
@@ -127,12 +125,11 @@ if (!exists("air")) {
 }
 ```
 
+```{r eval = FALSE}
 
-```{r}
-flights <- tbl(air, "flights")
-planes <- tbl(air, "planes")
-carriers <- tbl(air, "carriers")
-
+# create flights reference
+# create planes reference
+# create airlines reference
 
 flights %>%
   distinct(uniquecarrier, tailnum) %>%
