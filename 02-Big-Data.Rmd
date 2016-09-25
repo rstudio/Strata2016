@@ -118,7 +118,7 @@ The airlines database contains arrival and departure details for all commercial 
 if (!exists("air")) {
   air <- src_postgres(
     dbname = 'airontime', 
-    host = 'sol-eng.cjku7otn8uia.us-west-2.redshift.amazonaws.com', 
+    host = 'sol-eng-sparklyr.cyii7eabibhu.us-east-1.redshift.amazonaws.com', 
     port = '5439', 
     user = 'redshift_user', 
     password = 'ABCd4321')
@@ -126,21 +126,33 @@ if (!exists("air")) {
 ```
 
 ```{r eval = FALSE}
-
 # create flights reference
-# create planes reference
 # create airlines reference
 
-flights %>%
-  distinct(uniquecarrier, tailnum) %>%
-  mutate(tailnum = substring(tailnum, 1L, 5L)) %>%
-  left_join(planes, by = "tailnum") %>%
+# Calculate average speed
+avg_speed_tbl <- flights_tbl %>%
+  filter(actualelapsedtime > 30) %>%
+  mutate(mph = distance / actualelapsedtime * 60) %>%
   group_by(uniquecarrier) %>%
-  summarise(avg = mean(year, na.rm = TRUE), 
-            n = n(), nas = sum(is.na(year))) %>%
-  left_join(airlines, by = "uniquecarrier") %>%
-  select(name, avg, n, nas) %>%
-  arrange(desc(avg))
+  summarise(avg_mph = mean(mph), avg_dist = mean(distance), count = n()) %>%
+  left_join(airlines_tbl, by = c("uniquecarrier" = "code")) %>%
+  mutate(name = substring(description, 1L, 32L)) %>%
+  select(name, avg_mph, avg_dist, count) %>%
+  arrange(desc(avg_mph))
+
+# Inspect SQL
+sql_render(avg_speed_tbl)
+
+# Collect into R for visualization
+avg_speed <- avg_speed_tbl %>%
+  collect %>%
+  print
+
+# Create interactive plot
+figure(width = NULL, height = NULL, title = "", legend_location = NULL) %>%
+  ly_points(avg_dist, avg_mph, data = avg_speed,
+    size = rank(count), color = count,
+    hover = list(name, avg_dist, avg_mph, count))
 
 # closes connection
 if (exists("air")) { 
