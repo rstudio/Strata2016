@@ -183,6 +183,7 @@ The data is split into five related data sets:
 
 ![](nycflights.png)
 
+
 **Exercise 5**: *Use the chunk below to determine which airline has the newest planes (assigned to the NYC area).*
 
 ```{r}
