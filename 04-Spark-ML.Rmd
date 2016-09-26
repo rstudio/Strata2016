@@ -10,8 +10,6 @@ library(sparklyr)
 library(dplyr)
 library(ggplot2)
 library(titanic)
-#library(tidyr)
-#library(purrr)
 ```
 
 These are the class notes (Part 4 of 4) for *R for Big Data*, a workshop taught at *Strata + Hadoop World 2016 NYC*. The notes are saved as an R Markdown Notebook. See Part 1, *Universal Tools* to learn more about how to use R Markdown Notebooks.
@@ -36,7 +34,7 @@ Parquet is a column based data format that is also compressed. It is a format of
 ```{r data, message=FALSE, warning=FALSE}
 # Connect to local spark cluster and load data
 sc <- spark_connect(master = "local", version = "2.0.0")
-spark_read_parquet(sc, name = "titanic", path = "titanic-parquet")
+spark_read_parquet(sc, name = "titanic", path = "data/titanic-parquet")
 titanic_tbl <- tbl(sc, "titanic")
 ```
 
