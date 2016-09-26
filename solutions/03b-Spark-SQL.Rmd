@@ -1,0 +1,154 @@
+---
+title: "Analysis of babynames with dplyr"
+output: html_notebook
+---
+
+Use dplyr syntax to write Apache Spark SQL queries. Use select, where, group by, joins, and window functions in Aparche Spark SQL.
+
+## Setup
+
+```{r setup}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+library(sparklyr)
+library(dplyr)
+library(babynames)
+library(ggplot2)
+library(dygraphs)
+library(rbokeh)
+```
+
+## Connect to Spark
+
+Install and connect to a local Spark instance. Copy data into Spark DataFrames.
+
+```{r}
+sc <- spark_connect(master = "local", version = "2.0.0")
+babynames_tbl <- spark_read_parquet(sc, name = "babynames", path = "data/babynames-parquet/babynames")
+applicants_tbl <- spark_read_parquet(sc, name = "applicants", path = "data/babynames-parquet/applicants")
+#babynames_tbl <- copy_to(sc, babynames, "babynames", overwrite = TRUE)
+#applicants_tbl <- copy_to(sc, applicants, "applicants", overwrite = TRUE)
+```
+
+## Total US births
+
+Plot total US births recorded from the Social Security Administration.
+
+```{r}
+birthsYearly <- applicants_tbl %>%
+  mutate(male = ifelse(sex == "M", n_all, 0), female = ifelse(sex == "F", n_all, 0)) %>%
+  group_by(year) %>%
+  summarize(Male = sum(male) / 1000000, Female = sum(female) / 1000000) %>%
+  arrange(year) %>%
+  collect
+
+birthsYearly %>%
+  dygraph(main = "Total US Births (SSN)", ylab = "Millions") %>%
+  dySeries("Female") %>%
+  dySeries("Male") %>%
+  dyOptions(stackedGraph = TRUE) %>%
+  dyRangeSelector(height = 20)
+```
+
+## Aggregate data by name
+
+Use Spark SQL to create a look up table. Register and cache the look up table in Spark for future queries.
+
+```{r}
+topNames_tbl <- babynames_tbl %>%
+  filter(year >= 1986) %>%  
+  group_by(name, sex) %>%
+  summarize(count = as.numeric(sum(n))) %>%
+  filter(count > 1000) %>%
+  select(name, sex)
+
+filteredNames_tbl <- babynames_tbl %>%
+  filter(year >= 1986) %>%
+  inner_join(topNames_tbl)
+
+yearlyNames_tbl <- filteredNames_tbl %>%
+  group_by(year, name, sex) %>%
+  summarize(count = as.numeric(sum(n)))
+
+sdf_register(yearlyNames_tbl, "yearlyNames")
+tbl_cache(sc, "yearlyNames")
+```
+
+## Most popular names (1986)
+
+Identify the top 5 male and female names from 1986. Visualize the popularity trend over time.
+
+```{r}
+topNames1986_tbl <- yearlyNames_tbl %>%
+  filter(year == 1986) %>%
+  group_by(name, sex) %>%
+  summarize(count = sum(count)) %>%
+  group_by(sex) %>%
+  mutate(rank = min_rank(desc(count))) %>%
+  filter(rank < 5) %>%
+  arrange(sex, rank) %>%
+  select(name, sex, rank) %>%
+  sdf_register("topNames1986")
+
+tbl_cache(sc, "topNames1986")
+
+topNames1986Yearly <- yearlyNames_tbl %>%
+  inner_join(topNames1986_tbl) %>%
+  collect
+
+ggplot(topNames1986Yearly, aes(year, count, color=name)) +
+  facet_grid(~sex) +
+  geom_line() +
+  ggtitle("Most Popular Names of 1986")
+```
+
+## Most popular names (2014)
+
+Identify the top 5 male and female names from 2014. Visualize the popularity trend over time.
+
+```{r}
+topNames2014_tbl <- yearlyNames_tbl %>%
+  filter(year == 2014) %>%
+  group_by(name, sex) %>%
+  summarize(count = sum(count)) %>%
+  group_by(sex) %>%
+  mutate(rank = min_rank(desc(count))) %>%
+  filter(rank < 5) %>%
+  arrange(sex, rank) %>%
+  select(name, sex, rank) %>%
+  sdf_register("topNames2014")
+
+tbl_cache(sc, "topNames2014")
+
+topNames2014Yearly <- yearlyNames_tbl %>%
+  inner_join(topNames2014_tbl) %>%
+  collect
+
+ggplot(topNames2014Yearly, aes(year, count, color=name)) +
+  facet_grid(~sex) +
+  geom_line() +
+  ggtitle("Most Popular Names of 2014")
+```
+
+## Shared names
+
+Visualize the most popular names that are shared by both males and females.
+
+```{r}
+sharedName <- babynames_tbl %>%
+  mutate(male = ifelse(sex == "M", n, 0), female = ifelse(sex == "F", n, 0)) %>%
+  group_by(name) %>%
+  summarize(Male = as.numeric(sum(male)), 
+            Female = as.numeric(sum(female)),
+            count = as.numeric(sum(n)),
+            AvgYear = round(as.numeric(sum(year * n) / sum(n)),0)) %>%
+  filter(Male > 30000 & Female > 30000) %>%
+  collect
+
+figure(width = NULL, height = NULL, 
+       xlab = "Log10 Number of Males", 
+       ylab = "Log10 Number of Females",
+       title = "Top shared names (1880 - 2014)") %>%
+  ly_points(log10(Male), log10(Female), data = sharedName,
+            color = AvgYear, size = scale(sqrt(count)),
+            hover = list(name, Male, Female, AvgYear), legend = FALSE)
+```
