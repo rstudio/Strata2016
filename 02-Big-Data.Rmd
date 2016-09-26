@@ -125,34 +125,24 @@ if (!exists("air")) {
 }
 ```
 
-```{r eval = FALSE}
+```{r}
+
 # create flights reference
+# create planes reference
 # create airlines reference
 
-# Calculate average speed
-avg_speed_tbl <- flights_tbl %>%
-  filter(actualelapsedtime > 30) %>%
-  mutate(mph = distance / actualelapsedtime * 60) %>%
+flights %>%
+  distinct(uniquecarrier, tailnum) %>%
+  collapse() %>% 
+  mutate(tailnum = substring(tailnum, 1L, 5L)) %>%
+  left_join(planes, by = "tailnum") %>%
   group_by(uniquecarrier) %>%
-  summarise(avg_mph = mean(mph), avg_dist = mean(distance), count = n()) %>%
-  left_join(airlines_tbl, by = c("uniquecarrier" = "code")) %>%
-  mutate(name = substring(description, 1L, 32L)) %>%
-  select(name, avg_mph, avg_dist, count) %>%
-  arrange(desc(avg_mph))
-
-# Inspect SQL
-sql_render(avg_speed_tbl)
-
-# Collect into R for visualization
-avg_speed <- avg_speed_tbl %>%
-  collect %>%
-  print
-
-# Create interactive plot
-figure(width = NULL, height = NULL, title = "", legend_location = NULL) %>%
-  ly_points(avg_dist, avg_mph, data = avg_speed,
-    size = rank(count), color = count,
-    hover = list(name, avg_dist, avg_mph, count))
+  summarise(avg = mean(year), n = n()) %>%
+  left_join(carriers, by = c("uniquecarrier" = "code")) %>%
+  select(description, avg, n) %>%
+  arrange(desc(avg)) %>% 
+  collect() %>% 
+  as.data.frame()
 
 # closes connection
 if (exists("air")) { 
