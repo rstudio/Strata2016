@@ -64,8 +64,8 @@ c4 <- flights_tbl %>%
   arrange(carrier) %>%
   mutate(air_time_hours = air_time / 60)
 
-compute(c4, 'carrierhours')
-carrierhours_tbl <- tbl(sc, carrierhours)
+compute(c4, "carrierhours")
+carrierhours_tbl <- tbl(sc, "carrierhours")
 ```
 
 ## Grouping
